@@ -1,0 +1,66 @@
+{
+  "name": "soulforge-framework",
+  "version": "1.0.0",
+  "description": "A TypeScript framework for building digital beings with persistent memory, emotions, and identity. Create AI companions that grow, learn, and form genuine relationships.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "demo": "npm run build && node dist/index.js",
+    "demo:platform": "ts-node src/platform.ts",
+    "demo:companion": "ts-node examples/ai-companion.ts",
+    "demo:npc": "ts-node examples/smart-npc.ts",
+    "demo:teacher": "ts-node examples/virtual-teacher.ts",
+    "demo:empathy": "ts-node examples/empathy-api.ts",
+    "demo:chat": "ts-node examples/chat-application.ts",
+    "demo:rpg": "ts-node examples/rpg-game.ts",
+    "demo:therapy": "ts-node examples/therapy-api.ts",
+    "demo:persistence": "ts-node examples/persistence-demo.ts",
+    "clean": "rimraf dist",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "digital-beings",
+    "artificial-intelligence",
+    "personality",
+    "emotion",
+    "memory",
+    "psychology",
+    "chatbot",
+    "companion",
+    "npc",
+    "typescript",
+    "framework",
+    "empathy",
+    "relationships",
+    "cognitive-science"
+  ],
+  "author": {
+    "name": "Muhammad Ahmed",
+    "url": "https://github.com/Ahmed-KHI"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ahmed-KHI/soulforge-framework.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Ahmed-KHI/soulforge-framework/issues"
+  },
+  "homepage": "https://github.com/Ahmed-KHI/soulforge-framework#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.1.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "express": "^5.1.0",
+    "uuid": "^11.1.0"
+  }
+}

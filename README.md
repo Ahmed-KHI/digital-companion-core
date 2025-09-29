@@ -1,7 +1,8 @@
 # 🤖 Digital Companion Core
 
 [![GitHub stars](https://img.shields.io/github/stars/Ahmed-KHI/soulforge-framework?style=social)](https://github.com/Ahmed-KHI/soulforge-framework/stargazers)
-[![npm version](https://badge.fury.io/js/digital-companion-core.svg)](https://www.npmjs.com/package/digital-companion-core)
+[![npm version](https://img.shields.io/npm/v/digital-companion-core?style=flat&logo=npm)](https://www.npmjs.com/package/digital-companion-core)
+[![npm downloads](https://img.shields.io/npm/dm/digital-companion-core?style=flat&logo=npm)](https://www.npmjs.com/package/digital-companion-core)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

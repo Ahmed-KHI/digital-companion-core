@@ -1,6 +1,6 @@
 {
   "name": "digital-companion-core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Stateful personality + memory + emotion model for AI personas. Create digital companions that remember, feel, and evolve through conversations.",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",

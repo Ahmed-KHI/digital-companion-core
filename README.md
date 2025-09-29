@@ -12,6 +12,44 @@
 
 Create digital companions that remember conversations, develop relationships, and evolve their personality over time. Not just another chatbot - these are persistent AI personas with memory, emotions, and growth.
 
+## 📖 About
+
+### 📦 Packages
+
+The Digital Companion Core is available as an npm package:
+
+[![npm version](https://img.shields.io/npm/v/digital-companion-core?style=flat&logo=npm)](https://www.npmjs.com/package/digital-companion-core)
+[![npm downloads](https://img.shields.io/npm/dm/digital-companion-core?style=flat&logo=npm)](https://www.npmjs.com/package/digital-companion-core)
+
+**Installation:**
+```bash
+npm install digital-companion-core
+```
+
+**Package Information:**
+- **Package Name:** `digital-companion-core`
+- **Current Version:** `1.1.0`
+- **Package Manager:** npm
+- **Repository:** [GitHub](https://github.com/Ahmed-KHI/digital-companion-core)
+
+### 🚀 Releases
+
+Stay up-to-date with the latest releases and updates:
+
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Ahmed-KHI/digital-companion-core?style=flat&logo=github)](https://github.com/Ahmed-KHI/digital-companion-core/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/Ahmed-KHI/digital-companion-core?style=flat&logo=github)](https://github.com/Ahmed-KHI/digital-companion-core/releases)
+
+**Latest Release Features:**
+- Enhanced memory persistence across sessions
+- Improved emotional intelligence and mood tracking
+- Advanced personality adaptation algorithms
+- New demo applications and examples
+- Comprehensive TypeScript support
+
+**View All Releases:** [GitHub Releases](https://github.com/Ahmed-KHI/digital-companion-core/releases)
+
+**Changelog:** Track all changes, improvements, and bug fixes in our [release notes](https://github.com/Ahmed-KHI/digital-companion-core/releases).
+
 ## 🚀 Quickstart
 
 ### Installation

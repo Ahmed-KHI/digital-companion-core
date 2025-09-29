@@ -1,6 +1,6 @@
 # 🤖 Digital Companion Core
 
-[![GitHub stars](https://img.shields.io/github/stars/Ahmed-KHI/soulforge-framework?style=social)](https://github.com/Ahmed-KHI/soulforge-framework/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/Ahmed-KHI/digital-companion-core?style=social)](https://github.com/Ahmed-KHI/digital-companion-core/stargazers)
 [![npm version](https://img.shields.io/npm/v/digital-companion-core?style=flat&logo=npm)](https://www.npmjs.com/package/digital-companion-core)
 [![npm downloads](https://img.shields.io/npm/dm/digital-companion-core?style=flat&logo=npm)](https://www.npmjs.com/package/digital-companion-core)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -446,12 +446,12 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 Your stars help others discover SoulForge and motivate continued development.
 
 ### 💡 **Feature Requests & Ideas**
-- Open an [issue](https://github.com/Ahmed-KHI/soulforge-framework/issues) with your ideas
+- Open an [issue](https://github.com/Ahmed-KHI/digital-companion-core/issues) with your ideas
 - Join discussions about AI personality modeling
 - Share your digital beings creations!
 
 ### 🐛 **Found a Bug?**
-Please [report it](https://github.com/Ahmed-KHI/soulforge-framework/issues) - we fix issues quickly!
+Please [report it](https://github.com/Ahmed-KHI/digital-companion-core/issues) - we fix issues quickly!
 
 ---
 
@@ -459,4 +459,4 @@ Please [report it](https://github.com/Ahmed-KHI/soulforge-framework/issues) - we
 .
 ### 🌟 **Don't forget to star this repository if you found it useful!** ⭐
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Ahmed-KHI/soulforge-framework&type=Date)](https://star-history.com/#Ahmed-KHI/soulforge-framework&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Ahmed-KHI/digital-companion-core&type=Date)](https://star-history.com/#Ahmed-KHI/digital-companion-core&Date)

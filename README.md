@@ -1,35 +1,54 @@
-# 🛠️ SoulForge – A Framework for Building Digital Beings
+# 🤖 Digital Companion Core
 
-[![GitHub stars](https://img.shields.io/github/stars/Ahmed-KHI/soulforge-framework?style=social)](https://github.com/Ahmed-KHI/soulforge-framework/stargazers)
-[![npm version](https://badge.fury.io/js/soulforge-framework.svg)](https://www.npmjs.com/package/soulforge-framework)
+[![GitHub stars](https://img.shields.io/github/stars/Ahmed-KHI/digital-companion-core?style=social)](https://github.com/Ahmed-KHI/digital-companion-core/stargazers)
+[![npm version](https://badge.fury.io/js/digital-companion-core.svg)](https://www.npmjs.com/package/digital-companion-core)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-*"Not just chatbots — you create entities with souls."*
+**What it does in 1 sentence**: Stateful personality + memory + emotion model for AI personas.
 
 🌟 **Star this repo if you find it useful!** 🌟
 
-SoulForge is a revolutionary TypeScript framework for building persistent, emotionally aware, identity-consistent digital personalities. It combines cutting-edge cognitive psychology principles with modern AI development tools to create truly engaging digital beings that remember, feel, and evolve.
+Create digital companions that remember conversations, develop relationships, and evolve their personality over time. Not just another chatbot - these are persistent AI personas with memory, emotions, and growth.
 
-## 🌟 Key Features
+## 🚀 Quickstart
 
-- **🧠 Long-term Memory System** - Episodic, semantic, and emotional memory with intelligent consolidation
-- **👤 Identity Schema** - Beliefs, goals, relationships, and personal history
-- **🎭 Personality Configuration** - Big Five traits, MBTI types, and psychological archetypes  
-- **😊 Mood Engine** - Dynamic emotional states with internal monologue
-- **❤️ Empathy APIs** - Built-in emotional intelligence and response adaptation
-- **⏰ Time-aware Evolution** - Personalities that adapt and grow over time
-
-## 🎥 Live Demo
-
-Try the interactive web demo:
+### Installation
 ```bash
-git clone https://github.com/Ahmed-KHI/soulforge-framework.git
-cd soulforge-framework
-npm install
-npm run demo:platform
+npm install digital-companion-core
 ```
-Open `http://localhost:3000` and chat with 5 pre-created digital beings, each with unique personalities!
+
+### 15-Line Persona Example
+```typescript
+import { Soul } from 'digital-companion-core';
+
+// Create a digital companion in 15 lines
+const companion = new Soul()
+  .withIdentity({ 
+    name: "Alex", 
+    role: "Study Buddy",
+    personality: "ENFP" // Enthusiastic, creative, people-focused
+  })
+  .withMemory("persistent") // Remembers across sessions
+  .withMood("encouraging"); // Default emotional state
+
+// Have a conversation - companion remembers and evolves
+const response1 = companion.respond("I'm struggling with calculus");
+console.log(response1.response); // "I understand calculus can be tough! Let's break it down together..."
+console.log(response1.mood);     // "empathetic" (mood shifted based on your need)
+
+const response2 = companion.respond("I finally solved that problem!");  
+console.log(response2.response); // "That's amazing! I remember you were struggling with calculus - you've grown so much!"
+console.log(response2.mood);     // "proud" (shares in your success)
+```
+
+### 🎥 See Growth Over Time
+Check out [`demo_persona.json`](./demo_persona.json) to see how Maya evolves through 3 conversations with Sarah:
+- **Interaction 1**: Curious newcomer → Forms first memory
+- **Interaction 2**: Empathetic friend → Builds relationship 
+- **Interaction 3**: Proud supporter → Celebrates success
+
+**Growth metrics**: Trust (0→0.9), Memories (1→5), Emotional bond (0→0.8)
 
 ## 🚀 Quick Start
 
@@ -57,19 +76,66 @@ console.log(response.mood);     // Current emotional state
 console.log(response.thoughts); // Internal monologue
 ```
 
-## 🚀 What Makes SoulForge Special?
+## 🧠 Core Concepts
 
-### 🆚 Traditional Chatbots vs. SoulForge Entities
+### Memory System
+- **Short-term**: Active conversation context
+- **Long-term**: Important events, relationships, patterns
+- **Emotional**: How feelings attach to memories
+- **Semantic**: Facts, knowledge, learned information
 
-| Traditional Chatbots | 🌟 SoulForge Entities |
-|---------------------|-------------------|
-| ❌ Stateless responses | ✅ Persistent memory across conversations |
-| ❌ Generic personality | ✅ Unique identity with beliefs & goals |
-| ❌ Fixed behavior patterns | ✅ Adaptive personality that evolves |
-| ❌ No emotional awareness | ✅ Rich emotional intelligence |
-| ❌ Task-focused interactions | ✅ Relationship-focused connections |
+### Identity Framework  
+- **Personality**: Big Five traits + MBTI types
+- **Beliefs**: Core values that guide responses
+- **Goals**: What the persona wants to achieve
+- **Relationships**: History and bonds with users
 
-### Pre-configured Entities
+### Affective State Engine
+- **Dynamic Moods**: Emotions that shift based on interaction
+- **Energy Levels**: Social battery and engagement capacity  
+- **Stress Response**: How pressure affects behavior
+- **Confidence**: Self-assurance that grows over time
+
+## 🔧 Extending the Framework
+
+### Custom Memory Types
+```typescript
+// Add domain-specific memory
+companion.addMemory({
+  type: 'skill_progress',
+  content: 'User improved at calculus',
+  importance: 0.8,
+  emotional_weight: 0.6
+});
+```
+
+### Custom Personality Traits
+```typescript
+// Define specialized personality
+const therapist = new Soul()
+  .withPersonality({
+    empathy: 0.95,
+    patience: 0.9,
+    analytical: 0.7
+  });
+```
+
+### Mood Triggers
+```typescript
+// Set emotional responses
+companion.addMoodTrigger('success_celebration', {
+  trigger: (input) => input.includes('success'),
+  mood_change: 'joyful',
+  energy_boost: 20
+});
+```
+
+## 🎯 Use Cases
+- **Gaming**: NPCs that remember player choices and evolve
+- **Education**: Study companions that adapt to learning styles  
+- **Customer Service**: Agents that build long-term relationships
+- **Therapy**: Supportive personas with emotional intelligence
+- **Creative Writing**: Characters with consistent personalities
 
 ```typescript
 import { createCompanion, createNPC, createTeacher } from 'soulforge';

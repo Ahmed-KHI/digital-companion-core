@@ -1,7 +1,7 @@
 {
-  "name": "soulforge-framework",
-  "version": "1.0.0",
-  "description": "A TypeScript framework for building digital beings with persistent memory, emotions, and identity. Create AI companions that grow, learn, and form genuine relationships.",
+  "name": "digital-companion-core",
+  "version": "1.1.0",
+  "description": "Stateful personality + memory + emotion model for AI personas. Create digital companions that remember, feel, and evolve through conversations.",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
@@ -9,6 +9,7 @@
     "dev": "ts-node src/index.ts",
     "start": "node dist/src/index.js",
     "demo": "npm run build && node dist/src/index.js",
+    "demo:quickstart": "npx ts-node quick_example.ts",
     "demo:platform": "ts-node src/platform.ts",
     "demo:companion": "ts-node examples/ai-companion.ts",
     "demo:npc": "ts-node examples/smart-npc.ts",
@@ -45,12 +46,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Ahmed-KHI/soulforge-framework.git"
+    "url": "https://github.com/Ahmed-KHI/digital-companion-core.git"
   },
   "bugs": {
-    "url": "https://github.com/Ahmed-KHI/soulforge-framework/issues"
+    "url": "https://github.com/Ahmed-KHI/digital-companion-core/issues"
   },
-  "homepage": "https://github.com/Ahmed-KHI/soulforge-framework#readme",
+  "homepage": "https://github.com/Ahmed-KHI/digital-companion-core#readme",
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.1.0",

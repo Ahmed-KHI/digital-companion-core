@@ -1,0 +1,39 @@
+name: Build and Test
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Package info
+        run: |
+          echo "Package built successfully!"
+          echo "To publish to npm manually, run: npm publish"
+          echo "Package: digital-companion-core"
+          echo "Repository: https://github.com/Ahmed-KHI/digital-companion-core"

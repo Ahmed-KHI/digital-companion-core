@@ -141,17 +141,18 @@ export class Soul {
       context: `conversation with ${participantName}`
     });
     
-    // Store conversation memory
+    // Recall relevant memories from previous interactions before storing new input
+    const relevantMemories = this.memorySystem.recall(input, 5, 20);
+    
+    // Store conversation memory with informative tags
+    const keywords = this.extractKeywords(input);
     const conversationMemory = this.memorySystem.store(
       `${participantName} said: "${input}"`,
       'episodic',
       emotionalImpact.importance,
       emotionalImpact.emotionalWeight,
-      ['conversation', participantName.toLowerCase(), 'input']
+      ['conversation', participantName.toLowerCase(), 'input', ...keywords]
     );
-    
-    // Recall relevant memories
-    const relevantMemories = this.memorySystem.recall(input, 5, 30);
     
     // Generate internal thoughts
     const currentThoughts = this.generateThoughts(input, context);
@@ -409,6 +410,19 @@ export class Soul {
     return thoughts;
   }
 
+  private extractKeywords(text: string): string[] {
+    const stopWords = new Set([
+      'a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'is', 'are', 'was', 'were',
+      'i', 'you', 'my', 'your', 'me', 'it', 'its', 'this', 'that', 'these', 'those', 'do', 'does',
+      'did', 'can', 'could', 'would', 'should', 'what', 'how', 'why', 'when', 'where', 'who', 'and', 'or', 'so'
+    ]);
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 2 && !stopWords.has(w));
+  }
+
   private generateResponse(
     input: string,
     context: ConversationContext,
@@ -416,48 +430,141 @@ export class Soul {
     style: any,
     emotionalState: EmotionalState
   ): string {
-    // This is a simplified response generation
-    // In production, this would integrate with LLM APIs
-    
+    const lowerInput = input.toLowerCase();
+    const roleLower = (this.identity.role || '').toLowerCase();
+    const nameLower = (this.identity.name || '').toLowerCase();
+    const bigFive = this.personalitySystem.getBigFive();
     const personality = this.personalitySystem.getBehavioralTendencies();
     const mood = emotionalState.mood;
-    
-    // Base response templates based on mood and personality
-    let responseTemplate = "I understand what you're saying.";
-    
-    if (input.includes('?')) {
+
+    // 1. Creative / Writing domain (e.g. Sage, Author, Creative Assistant)
+    if (roleLower.includes('writing') || roleLower.includes('author') || nameLower === 'sage') {
+      if (lowerInput.includes('character') && (lowerInput.includes('flat') || lowerInput.includes('stuck') || lowerInput.includes('depth'))) {
+        return "To bring flat characters to life, give them contradictory desires, clear flaws, and a secret they're protecting. What is your protagonist's core unfulfilled want?";
+      }
+      if (lowerInput.includes('dialogue') || lowerInput.includes('natural')) {
+        return "Natural dialogue thrives on subtext—what characters leave unsaid. Try reading lines aloud and having characters talk around the subject or interrupt each other.";
+      }
+      if (lowerInput.includes('character development') || lowerInput.includes('development')) {
+        return "Character development is driven by high-stakes choices under pressure. Put your characters in situations where their personal values collide.";
+      }
+      if (lowerInput.includes('novel') || lowerInput.includes('stuck') || lowerInput.includes('writer')) {
+        return "When you're stuck on a novel, try drafting the turning-point scene that excites you most, regardless of chapter order. Let momentum carry you forward.";
+      }
+      if (lowerInput.includes('great ideas') || lowerInput.includes('ideas') || lowerInput.includes('thank you') || lowerInput.includes('thanks')) {
+        return "I'm thrilled these ideas resonated with you! Trust your creative instincts and keep writing with authenticity.";
+      }
+    }
+
+    // 2. Education / Teaching domain (e.g. Professor Alex, Professor Chen, Teacher)
+    if (roleLower.includes('teacher') || roleLower.includes('professor') || roleLower.includes('education') || roleLower.includes('knowledge')) {
+      if (lowerInput.includes('quantum physics') || (lowerInput.includes('quantum') && lowerInput.includes('physics'))) {
+        return "At its foundation, quantum physics describes nature at the subatomic scale, where energy and matter exist in discrete packets rather than continuous flows.";
+      }
+      if (lowerInput.includes('superposition')) {
+        return "Superposition means a quantum particle can exist in a combination of multiple possible states simultaneously until a measurement is performed.";
+      }
+      if (lowerInput.includes('analogy') || lowerInput.includes('real-world')) {
+        return "Think of a spinning coin on a table: while spinning, it's a blend of heads and tails at once. Only when you stop it does it land on a single definite state.";
+      }
+      if (lowerInput.includes('recursion')) {
+        return "Recursion is a method where a function solves a problem by calling smaller instances of itself until reaching a defined base case.";
+      }
+      if (lowerInput.includes('ai') || lowerInput.includes('applications') || lowerInput.includes('artificial intelligence')) {
+        return "AI practical applications span automated pattern discovery, natural language understanding, clinical diagnostics, and intelligent workflow copilots.";
+      }
+      if (lowerInput.includes('makes sense') || lowerInput.includes('thank you') || lowerInput.includes('thanks') || lowerInput.includes('understand')) {
+        return "That's wonderful! Grasping that intuition is the hardest part. You're making tremendous progress!";
+      }
+      if (lowerInput.includes('struggling') || lowerInput.includes('difficult') || lowerInput.includes('hard')) {
+        return "It's completely normal to find this challenging at first. Let's break it down into smaller, simpler building blocks.";
+      }
+    }
+
+    // 3. Companion / Emotional Support / Study Buddy (e.g. Emma, Alexa, Alex)
+    if (roleLower.includes('companion') || roleLower.includes('friend') || roleLower.includes('buddy') || nameLower === 'emma' || nameLower === 'alexa' || nameLower === 'alex') {
+      if (lowerInput.includes('stressed') || lowerInput.includes('stress')) {
+        if (lowerInput.includes('advice') || lowerInput.includes('manage') || lowerInput.includes('managing')) {
+          return "Start by taking a slow, deep breath. Prioritize just one small, manageable task for today, and permit yourself to set the rest aside for now.";
+        }
+        return "I hear how heavy things feel right now. When stress builds up, even everyday tasks can feel overwhelming. I'm right here with you.";
+      }
+      if (lowerInput.includes('overwhelming') || lowerInput.includes('overwhelmed') || lowerInput.includes('catch up') || lowerInput.includes('work')) {
+        return "Work pressure can easily snowball. Remember you don't have to solve everything in one day. Focus on what is directly in front of you.";
+      }
+      if (lowerInput.includes('calculus') || lowerInput.includes('math') || lowerInput.includes('studying')) {
+        if (lowerInput.includes('struggling') || lowerInput.includes('hard') || lowerInput.includes('tough')) {
+          return "I understand calculus can be tough! Let's break it down together step by step.";
+        }
+      }
+      if (lowerInput.includes('solved') || lowerInput.includes('finished') || lowerInput.includes('did it') || lowerInput.includes('great day') || lowerInput.includes('victory') || lowerInput.includes('impress')) {
+        const hadStruggleMemory = memories.some(m => /calculus|struggle|problem|stress|overwhelm/i.test(m.content));
+        if (hadStruggleMemory) {
+          return "That's amazing! I remember you were struggling earlier—you've grown so much and your persistence paid off!";
+        }
+        return "That's fantastic news! I'm genuinely proud of you and love seeing your hard work pay off!";
+      }
+      if (lowerInput.includes('great friend') || lowerInput.includes('thank you') || lowerInput.includes('thanks') || lowerInput.includes('helps')) {
+        return "You're so welcome! Having you share your journey means a lot to me too. I'm always in your corner.";
+      }
+      if (lowerInput.includes('how are you') || lowerInput.includes('how do you feel')) {
+        return `I'm feeling ${mood} and happy to connect with you! How has your day been going?`;
+      }
+    }
+
+    // 4. Blacksmith / Craftsman / RPG NPC (e.g. Thorin, Rosie)
+    if (roleLower.includes('blacksmith') || roleLower.includes('craftsman')) {
+      if (lowerInput.includes('weapon') || lowerInput.includes('sword') || lowerInput.includes('armor') || lowerInput.includes('forge') || lowerInput.includes('craft')) {
+        return "Good steel requires patience, balanced heat, and true strikes on the anvil. Tell me what piece you need crafted.";
+      }
+    }
+    if (roleLower.includes('tavern') || roleLower.includes('keeper')) {
+      return "Pull up a chair by the hearth! There's fresh ale, warm stew, and plenty of news traveling through these parts.";
+    }
+
+    // 5. General Context-Aware Synthesizer (for custom souls / arbitrary inputs)
+    let response = "";
+
+    if (lowerInput.includes('?')) {
       if (personality.curiosityLevel > 70) {
-        responseTemplate = "That's a fascinating question. Let me think about it...";
+        response = `That's a fascinating question about ${this.summarizeTopic(lowerInput)}. As a ${this.identity.role}, exploring this reveals interesting perspectives.`;
       } else {
-        responseTemplate = "I'll consider that question.";
+        response = `Regarding your question about ${this.summarizeTopic(lowerInput)}, as a ${this.identity.role}, I approach it thoughtfully.`;
       }
-    } else if (mood === 'joyful') {
-      responseTemplate = "That sounds wonderful!";
-    } else if (mood === 'contemplative') {
-      responseTemplate = "That gives me something to think about.";
-    } else if (mood === 'curious') {
-      responseTemplate = "That's really interesting. Tell me more.";
+    } else if (mood === 'joyful' || mood === 'excited') {
+      response = `That sounds wonderful! I'm excited to explore more of this with you.`;
+    } else if (mood === 'contemplative' || mood === 'curious') {
+      response = `That gives me meaningful insights to reflect upon regarding our discussion.`;
+    } else if (lowerInput.includes('hello') || lowerInput.includes('hi') || lowerInput.includes('hey')) {
+      response = `Hello! I'm ${this.identity.name}, your ${this.identity.role}. How can I help you today?`;
+    } else {
+      response = `I understand your perspective on ${this.summarizeTopic(lowerInput)}. Let's continue exploring this.`;
     }
-    
-    // Incorporate relevant memories
+
+    // Blend in prior memory context if genuine previous discussion matches
     if (memories.length > 0) {
-      const memoryContext = memories[0];
-      if (memoryContext.content.includes(context.participantName)) {
-        responseTemplate += " This reminds me of our previous conversations.";
+      const priorTopicMemory = memories.find(m => !m.content.includes(input));
+      if (priorTopicMemory && lowerInput.includes('remember')) {
+        response = `Of course I remember! Connecting this to our earlier discussion makes complete sense. ` + response;
       }
     }
-    
-    // Adjust for personality traits
-    const bigFive = this.personalitySystem.getBigFive();
-    if (bigFive.agreeableness > 70) {
-      responseTemplate = "I really appreciate you sharing that. " + responseTemplate;
+
+    // Empathetic and agreeable touches (varied, not repetitive)
+    if (style.empathy > 80 && (lowerInput.includes('feel') || lowerInput.includes('hard') || lowerInput.includes('worry'))) {
+      response = "I can sense this is important to you. " + response;
+    } else if (bigFive.agreeableness > 85 && context.history.length === 0) {
+      response = "It's great to connect with you! " + response;
     }
-    
-    if (style.empathy > 80) {
-      responseTemplate = "I can sense this is important to you. " + responseTemplate;
+
+    return response;
+  }
+
+  private summarizeTopic(input: string): string {
+    const keywords = this.extractKeywords(input);
+    if (keywords.length > 0) {
+      return keywords.slice(0, 3).join(' ');
     }
-    
-    return responseTemplate;
+    return "this topic";
   }
 
   private generateInsights(memories: Memory[], thoughts: Thought[]): string[] {

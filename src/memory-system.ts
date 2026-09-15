@@ -154,34 +154,62 @@ export class MemorySystem {
    * Calculate relevance score for memory based on query
    */
   private calculateRelevance(memory: Memory, query: string): number {
-    const queryLower = query.toLowerCase();
+    const queryLower = query.toLowerCase().trim();
     const contentLower = memory.content.toLowerCase();
     
-    let score = 0;
+    let matchScore = 0;
     
-    // Direct content match
-    if (contentLower.includes(queryLower)) {
-      score += 100;
+    // Direct full-query content match
+    if (queryLower.length > 2 && contentLower.includes(queryLower)) {
+      matchScore += 100;
     }
     
+    // Extract query terms (filter out punctuation and common stop words)
+    const stopWords = new Set([
+      'a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'is', 'are', 'was', 'were',
+      'i', 'you', 'my', 'your', 'me', 'it', 'its', 'this', 'that', 'these', 'those', 'do', 'does',
+      'did', 'can', 'could', 'would', 'should', 'what', 'how', 'why', 'when', 'where', 'who', 'and', 'or', 'so'
+    ]);
+    
+    const queryWords = queryLower
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 2 && !stopWords.has(w));
+      
+    // Keyword matches in memory content
+    queryWords.forEach(word => {
+      if (contentLower.includes(word)) {
+        matchScore += 25;
+      }
+    });
+
     // Tag matches
-    if (memory.tags) {
+    if (memory.tags && memory.tags.length > 0) {
       memory.tags.forEach(tag => {
-        if (tag.toLowerCase().includes(queryLower)) {
-          score += 50;
+        const tagLower = tag.toLowerCase();
+        if (queryLower.includes(tagLower)) {
+          matchScore += 35;
         }
+        queryWords.forEach(word => {
+          if (tagLower.includes(word)) {
+            matchScore += 20;
+          }
+        });
       });
     }
     
-    // Importance bonus
-    score += memory.importance * 0.5;
+    // Only apply importance and recency boosts if there is actual relevance
+    if (matchScore > 0) {
+      // Importance bonus
+      matchScore += memory.importance * 0.3;
+      
+      // Recency bonus (memories created recently get boost)
+      const minutesSince = (Date.now() - memory.timestamp.getTime()) / (1000 * 60);
+      const recencyBonus = Math.max(0, 15 - minutesSince / 60);
+      matchScore += recencyBonus;
+    }
     
-    // Recency bonus (more recent memories get slight boost)
-    const daysSince = (Date.now() - memory.timestamp.getTime()) / (1000 * 60 * 60 * 24);
-    const recencyBonus = Math.max(0, 20 - daysSince);
-    score += recencyBonus;
-    
-    return score;
+    return matchScore;
   }
 
   /**

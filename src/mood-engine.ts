@@ -34,6 +34,17 @@ export class MoodEngine {
     return this.emotionalState.mood;
   }
 
+    /**
+   * Set mood directly (used by the fluent API and by import)
+   */
+  setMood(mood: MoodState): void {
+    if (mood !== this.emotionalState.mood) {
+      this.emotionalState.mood = mood;
+      this.recordMoodChange(mood);
+    }
+  }
+  
+
   /**
    * Update mood based on external stimulus
    */

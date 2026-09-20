@@ -91,11 +91,7 @@ export class Soul {
    * Fluent API: Set initial mood
    */
   withMood(mood: MoodState): Soul {
-    this.moodEngine.updateMood({
-      type: 'neutral',
-      intensity: 0,
-      context: 'initial mood setting'
-    });
+    this.moodEngine.setMood(mood);
     return this;
   }
 

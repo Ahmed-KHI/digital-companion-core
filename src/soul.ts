@@ -6,12 +6,16 @@ import {
   ConversationContext, 
   Memory,
   Thought,
-  EmotionalState 
+  EmotionalState,
+  SoulSnapshot,
+  SNAPSHOT_VERSION,
+  SerializedMemory
 } from './types';
 import { MemorySystem } from './memory-system';
 import { MoodEngine } from './mood-engine';
 import { PersonalitySystem } from './personality-system';
 import { v4 as uuidv4 } from 'uuid';
+import { parseDate } from './snapshot-utils';
 
 export class Soul {
   private id: string;
@@ -266,45 +270,62 @@ export class Soul {
   /**
    * Export soul state for persistence
    */
-  export(): {
-    id: string;
-    identity: Identity;
-    personality: PersonalityConfig;
-    memories: Memory[];
-    conversationContexts: ConversationContext[];
-    empathyLevel: number;
-    learningRate: number;
-  } {
+  export(): SoulSnapshot {
     return {
+      version: SNAPSHOT_VERSION,
+      exportedAt: new Date().toISOString(),
       id: this.id,
       identity: this.identity,
       personality: this.personalitySystem.getConfig(),
       memories: this.memorySystem.export(),
-      conversationContexts: Array.from(this.conversationContexts.values()),
-      empathyLevel: this.empathyLevel,
-      learningRate: this.learningRate
+      conversations: Array.from(this.conversationContexts.values()).map(context => ({
+        ...context,
+        history: context.history.map(entry => ({
+          ...entry,
+          timestamp: entry.timestamp.toISOString()
+        }))
+      })),
+      settings: {
+        empathyLevel: this.empathyLevel,
+        learningRate: this.learningRate,
+        thoughtFrequency: this.thoughtFrequency
+      },
+      mood: this.moodEngine.exportSnapshot()
     };
   }
 
   /**
    * Import soul state from external source
    */
-  import(data: ReturnType<Soul['export']>): void {
+  import(data: SoulSnapshot): void {
+    if (data.version !== SNAPSHOT_VERSION) {
+      throw new Error(`Unsupported snapshot version: ${data.version}`);
+    }
+
     this.id = data.id;
     this.identity = data.identity;
-    this.empathyLevel = data.empathyLevel;
-    this.learningRate = data.learningRate;
+    this.empathyLevel = data.settings.empathyLevel;
+    this.learningRate = data.settings.learningRate;
+    this.thoughtFrequency = data.settings.thoughtFrequency;
     
     // Import memories
     this.memorySystem.import(data.memories);
     
     // Import conversation contexts
-    data.conversationContexts.forEach(context => {
-      this.conversationContexts.set(context.participantId, context);
+    this.conversationContexts.clear();
+    data.conversations.forEach(context => {
+      this.conversationContexts.set(context.participantId, {
+        ...context,
+        history: context.history.map(entry => ({
+          ...entry,
+          timestamp: parseDate(entry.timestamp, `conversation[${context.participantId}].history[].timestamp`)
+        }))
+      });
     });
     
     // Recreate personality system
     this.personalitySystem = new PersonalitySystem(data.personality, this.learningRate);
+    this.moodEngine.importSnapshot(data.mood);
   }
 
   /**

@@ -1,5 +1,6 @@
-import { Memory } from './types';
+import { Memory, SerializedMemory } from './types';
 import { v4 as uuidv4 } from 'uuid';
+import { parseDate } from './snapshot-utils';
 
 export class MemorySystem {
   private memories: Map<string, Memory> = new Map();
@@ -240,17 +241,29 @@ export class MemorySystem {
   }
 
   /**
-   * Export memories for persistence
+   * Export memories for persistence (dates as ISO strings, JSON-safe)
    */
-  export(): Memory[] {
-    return Array.from(this.memories.values());
+  export(): SerializedMemory[] {
+    return Array.from(this.memories.values()).map(memory => ({
+      ...memory,
+      timestamp: memory.timestamp.toISOString()
+    }));
   }
 
   /**
-   * Import memories from external source
+   * Replace current memory state with data from a snapshot.
+   * Clearing first means repeated imports don't duplicate memories.
    */
-  import(memories: Memory[]): void {
-    memories.forEach(memory => {
+  import(memories: SerializedMemory[]): void {
+    this.memories.clear();
+    this.shortTermMemory = [];
+    this.longTermMemory = [];
+
+    memories.forEach(serialized => {
+      const memory: Memory = {
+        ...serialized,
+        timestamp: parseDate(serialized.timestamp, `memory[${serialized.id}].timestamp`)
+      };
       this.memories.set(memory.id, memory);
       if (memory.importance >= 60) {
         this.longTermMemory.push(memory);
@@ -258,7 +271,7 @@ export class MemorySystem {
         this.shortTermMemory.push(memory);
       }
     });
-    
+
     this.consolidateMemories();
   }
 }

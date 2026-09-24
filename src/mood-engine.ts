@@ -1,5 +1,7 @@
-import { EmotionalState, MoodState, Thought } from './types';
+import { EmotionalState, MoodState, Thought, SerializedThought } from './types';
 import { v4 as uuidv4 } from 'uuid';
+import { parseDate } from './snapshot-utils';
+
 
 export class MoodEngine {
   private emotionalState: EmotionalState;
@@ -42,6 +44,46 @@ export class MoodEngine {
       this.emotionalState.mood = mood;
       this.recordMoodChange(mood);
     }
+  }
+    /**
+   * Export mood state for persistence (dates as ISO strings, JSON-safe)
+   */
+  exportSnapshot(): {
+    state: EmotionalState;
+    history: Array<{ mood: MoodState; timestamp: string }>;
+    thoughts: SerializedThought[];
+  } {
+    return {
+      state: { ...this.emotionalState },
+      history: this.moodHistory.map(entry => ({
+        mood: entry.mood,
+        timestamp: entry.timestamp.toISOString()
+      })),
+      thoughts: this.thoughts.map(thought => ({
+        ...thought,
+        timestamp: thought.timestamp.toISOString()
+      }))
+    };
+  }
+
+  /**
+   * Replace current mood state with data from a snapshot.
+   * Does not call recordMoodChange, so import doesn't add an extra history entry.
+   */
+  importSnapshot(data: {
+    state: EmotionalState;
+    history: Array<{ mood: MoodState; timestamp: string }>;
+    thoughts: SerializedThought[];
+  }): void {
+    this.emotionalState = { ...data.state };
+    this.moodHistory = data.history.map(entry => ({
+      mood: entry.mood,
+      timestamp: parseDate(entry.timestamp, 'mood.history[].timestamp')
+    }));
+    this.thoughts = data.thoughts.map(thought => ({
+      ...thought,
+      timestamp: parseDate(thought.timestamp, 'mood.thoughts[].timestamp')
+    }));
   }
   
 

@@ -85,7 +85,7 @@ export class MoodEngine {
       timestamp: parseDate(thought.timestamp, 'mood.thoughts[].timestamp')
     }));
   }
-  
+
 
   /**
    * Update mood based on external stimulus
@@ -98,7 +98,7 @@ export class MoodEngine {
     }
   ): MoodState {
     const { type, intensity, context } = stimulus;
-    
+
     // Adjust emotional state based on stimulus
     switch (type) {
       case 'positive':
@@ -106,13 +106,13 @@ export class MoodEngine {
         this.emotionalState.stress = Math.max(0, this.emotionalState.stress - intensity * 0.2);
         this.emotionalState.confidence = Math.min(100, this.emotionalState.confidence + intensity * 0.25);
         break;
-        
+
       case 'negative':
         this.emotionalState.energy = Math.max(0, this.emotionalState.energy - intensity * 0.2);
         this.emotionalState.stress = Math.min(100, this.emotionalState.stress + intensity * 0.4);
         this.emotionalState.confidence = Math.max(0, this.emotionalState.confidence - intensity * 0.15);
         break;
-        
+
       case 'neutral':
         // Gradual return to baseline
         this.emotionalState.energy = this.moveToward(this.emotionalState.energy, 70, 5);
@@ -123,11 +123,11 @@ export class MoodEngine {
 
     // Determine new mood based on emotional state
     const newMood = this.calculateMoodFromState();
-    
+
     if (newMood !== this.emotionalState.mood) {
       this.emotionalState.mood = newMood;
       this.recordMoodChange(newMood);
-      
+
       // Generate internal thought about mood change
       this.addThought(
         `I'm feeling ${newMood} now${context ? ` because of ${context}` : ''}.`,
@@ -143,7 +143,7 @@ export class MoodEngine {
    * Adjust social battery (for introversion/extraversion simulation)
    */
   adjustSocialBattery(change: number): void {
-    this.emotionalState.socialBattery = Math.max(0, Math.min(100, 
+    this.emotionalState.socialBattery = Math.max(0, Math.min(100,
       this.emotionalState.socialBattery + change
     ));
   }
@@ -165,7 +165,7 @@ export class MoodEngine {
     if (thoughtContent) {
       return this.addThought(thoughtContent.content, thoughtContent.type);
     }
-    
+
     return null;
   }
 
@@ -182,7 +182,7 @@ export class MoodEngine {
     };
 
     this.thoughts.push(thought);
-    
+
     // Keep only recent thoughts
     if (this.thoughts.length > 100) {
       this.thoughts = this.thoughts.slice(-50);
@@ -219,13 +219,13 @@ export class MoodEngine {
   simulateTimePassage(minutes: number): void {
     // Natural energy decay
     this.emotionalState.energy = Math.max(0, this.emotionalState.energy - minutes * 0.1);
-    
+
     // Stress relief over time
     this.emotionalState.stress = Math.max(0, this.emotionalState.stress - minutes * 0.05);
-    
+
     // Social battery recovery when alone
     this.emotionalState.socialBattery = Math.min(100, this.emotionalState.socialBattery + minutes * 0.2);
-    
+
     // Check for mood changes
     const newMood = this.calculateMoodFromState();
     if (newMood !== this.emotionalState.mood) {
@@ -239,32 +239,32 @@ export class MoodEngine {
    */
   private calculateMoodFromState(): MoodState {
     const { energy, stress, confidence, socialBattery } = this.emotionalState;
-    
+
     // High stress states
     if (stress > 70) {
       return energy > 60 ? 'anxious' : 'frustrated';
     }
-    
+
     // Low energy states
     if (energy < 30) {
       return stress > 40 ? 'melancholic' : 'contemplative';
     }
-    
+
     // High energy, low stress states
     if (energy > 80 && stress < 30) {
       return confidence > 70 ? 'joyful' : 'excited';
     }
-    
+
     // Balanced states
     if (confidence > 70 && stress < 40) {
       return energy > 60 ? 'content' : 'calm';
     }
-    
+
     // Curious state when social battery is high and confidence moderate
     if (socialBattery > 70 && confidence > 50 && confidence < 80) {
       return 'curious';
     }
-    
+
     return 'neutral';
   }
 
@@ -292,7 +292,7 @@ export class MoodEngine {
       mood,
       timestamp: new Date()
     });
-    
+
     // Keep only recent mood history
     if (this.moodHistory.length > 200) {
       this.moodHistory = this.moodHistory.slice(-100);
@@ -304,7 +304,7 @@ export class MoodEngine {
    */
   private generateThoughtContent(context?: string): { content: string; type: Thought['type'] } | null {
     const { mood, energy, stress } = this.emotionalState;
-    
+
     const thoughtTemplates = {
       joyful: [
         "I'm feeling really good about things right now.",
@@ -360,9 +360,9 @@ export class MoodEngine {
 
     const templates = thoughtTemplates[mood];
     if (!templates || templates.length === 0) return null;
-    
+
     const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
-    
+
     // Determine thought type based on content and mood
     let type: Thought['type'] = 'reflection';
     if (randomTemplate.includes('wonder') || randomTemplate.includes('interesting')) {
@@ -372,7 +372,7 @@ export class MoodEngine {
     } else if (randomTemplate.includes('feeling') || randomTemplate.includes("I'm")) {
       type = 'emotion';
     }
-    
+
     return {
       content: randomTemplate,
       type

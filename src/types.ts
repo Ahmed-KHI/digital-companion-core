@@ -86,3 +86,44 @@ export interface SoulConfig {
   empathyLevel?: number;     // 0-100: How empathetic the soul is
   learningRate?: number;     // 0-100: How quickly personality adapts
 }
+
+export const SNAPSHOT_VERSION = 1;
+
+// Same as Memory, but the date is stored as an ISO string (JSON-safe)
+export interface SerializedMemory extends Omit<Memory, 'timestamp'> {
+  timestamp: string;
+}
+
+export interface SerializedThought extends Omit<Thought, 'timestamp'> {
+  timestamp: string;
+}
+
+export interface SerializedConversationContext
+  extends Omit<ConversationContext, 'history'> {
+  history: Array<{
+    speaker: string;
+    message: string;
+    timestamp: string;
+    emotionalResponse?: string;
+  }>;
+}
+
+export interface SoulSnapshot {
+  version: number;
+  exportedAt: string;
+  id: string;
+  identity: Identity;
+  personality: PersonalityConfig;
+  settings: {
+    empathyLevel: number;
+    learningRate: number;
+    thoughtFrequency: number;
+  };
+  memories: SerializedMemory[];
+  conversations: SerializedConversationContext[];
+  mood: {
+    state: EmotionalState;
+    history: Array<{ mood: MoodState; timestamp: string }>;
+    thoughts: SerializedThought[];
+  };
+}

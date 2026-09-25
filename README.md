@@ -79,6 +79,19 @@ console.log(response.thoughts); // Internal monologue
 
 ## 🧠 Core Concepts
 
+### Persistence
+
+`SoulSnapshot` is the JSON-safe representation of a Soul. It includes a `version` field, identity, personality, settings, memories, conversation histories, and the current mood state with its history and thoughts. Use `export()` to create a snapshot and `import()` to restore it:
+
+```typescript
+const saved = JSON.stringify(soul.export());
+
+const restored = new Soul();
+restored.import(JSON.parse(saved));
+```
+
+Snapshots can be stored in a database or file and loaded in a later process. `import()` validates the complete snapshot, including all serialized dates, before mutating the existing Soul state.
+
 ### Memory System
 - **Short-term**: Active conversation context
 - **Long-term**: Important events, relationships, patterns

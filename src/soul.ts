@@ -6,12 +6,16 @@ import {
   ConversationContext, 
   Memory,
   Thought,
-  EmotionalState 
+  EmotionalState,
+  SoulSnapshot,
+  SNAPSHOT_VERSION,
+  SerializedMemory
 } from './types';
 import { MemorySystem } from './memory-system';
 import { MoodEngine } from './mood-engine';
 import { PersonalitySystem } from './personality-system';
 import { v4 as uuidv4 } from 'uuid';
+import { parseDate } from './snapshot-utils';
 
 export class Soul {
   private id: string;
@@ -91,11 +95,7 @@ export class Soul {
    * Fluent API: Set initial mood
    */
   withMood(mood: MoodState): Soul {
-    this.moodEngine.updateMood({
-      type: 'neutral',
-      intensity: 0,
-      context: 'initial mood setting'
-    });
+    this.moodEngine.setMood(mood);
     return this;
   }
 
@@ -270,45 +270,133 @@ export class Soul {
   /**
    * Export soul state for persistence
    */
-  export(): {
-    id: string;
-    identity: Identity;
-    personality: PersonalityConfig;
-    memories: Memory[];
-    conversationContexts: ConversationContext[];
-    empathyLevel: number;
-    learningRate: number;
-  } {
+  export(): SoulSnapshot {
     return {
+      version: SNAPSHOT_VERSION,
+      exportedAt: new Date().toISOString(),
       id: this.id,
       identity: this.identity,
       personality: this.personalitySystem.getConfig(),
       memories: this.memorySystem.export(),
-      conversationContexts: Array.from(this.conversationContexts.values()),
-      empathyLevel: this.empathyLevel,
-      learningRate: this.learningRate
+      conversations: Array.from(this.conversationContexts.values()).map(context => ({
+        ...context,
+        history: context.history.map(entry => ({
+          ...entry,
+          timestamp: entry.timestamp.toISOString()
+        }))
+      })),
+      settings: {
+        empathyLevel: this.empathyLevel,
+        learningRate: this.learningRate,
+        thoughtFrequency: this.thoughtFrequency
+      },
+      mood: this.moodEngine.exportSnapshot()
     };
   }
 
   /**
    * Import soul state from external source
    */
-  import(data: ReturnType<Soul['export']>): void {
-    this.id = data.id;
-    this.identity = data.identity;
-    this.empathyLevel = data.empathyLevel;
-    this.learningRate = data.learningRate;
-    
-    // Import memories
-    this.memorySystem.import(data.memories);
-    
-    // Import conversation contexts
-    data.conversationContexts.forEach(context => {
-      this.conversationContexts.set(context.participantId, context);
+  import(data: SoulSnapshot): void {
+    const snapshot = this.validateSnapshot(data);
+
+    this.id = snapshot.id;
+    this.identity = snapshot.identity;
+    this.empathyLevel = snapshot.settings.empathyLevel;
+    this.learningRate = snapshot.settings.learningRate;
+    this.thoughtFrequency = snapshot.settings.thoughtFrequency;
+    this.memorySystem.import(snapshot.memories);
+    this.conversationContexts.clear();
+    snapshot.conversations.forEach(context => {
+      this.conversationContexts.set(context.participantId, {
+        ...context,
+        history: context.history.map(entry => ({
+          ...entry,
+          timestamp: parseDate(entry.timestamp, `conversation[${context.participantId}].history[].timestamp`)
+        }))
+      });
     });
-    
-    // Recreate personality system
-    this.personalitySystem = new PersonalitySystem(data.personality, this.learningRate);
+    this.personalitySystem = new PersonalitySystem(snapshot.personality, this.learningRate);
+    this.moodEngine.importSnapshot(snapshot.mood);
+  }
+
+  private validateSnapshot(data: SoulSnapshot): SoulSnapshot {
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid snapshot: expected an object');
+    }
+    if (data.version !== SNAPSHOT_VERSION) {
+      throw new Error(`Unsupported snapshot version: ${data.version}`);
+    }
+    if (typeof data.id !== 'string' || !data.id) {
+      throw new Error('Invalid snapshot: "id" is required');
+    }
+    parseDate(data.exportedAt, 'exportedAt');
+    if (!data.identity || typeof data.identity !== 'object') {
+      throw new Error('Invalid snapshot: "identity" is required');
+    }
+    if (!data.personality || typeof data.personality !== 'object') {
+      throw new Error('Invalid snapshot: "personality" is required');
+    }
+    if (!data.settings || typeof data.settings !== 'object') {
+      throw new Error('Invalid snapshot: "settings" is required');
+    }
+    if (!data.mood || typeof data.mood !== 'object') {
+      throw new Error('Invalid snapshot: "mood" is required');
+    }
+    if (!Array.isArray(data.memories) || !Array.isArray(data.conversations) ||
+      !Array.isArray(data.mood.history) || !Array.isArray(data.mood.thoughts)) {
+      throw new Error('Invalid snapshot: collection fields must be arrays');
+    }
+    if (!data.mood.state || typeof data.mood.state !== 'object') {
+      throw new Error('Invalid snapshot: "mood.state" is required');
+    }
+
+    const memories = data.memories.map((memory, index) => {
+      if (!memory || typeof memory !== 'object' || typeof memory.id !== 'string' ||
+        typeof memory.content !== 'string') {
+        throw new Error(`Invalid snapshot: memory[${index}] is malformed`);
+      }
+      return { ...memory, timestamp: parseDate(memory.timestamp, `memory[${memory.id}].timestamp`).toISOString() };
+    });
+    const conversations = data.conversations.map((context, index) => {
+      if (!context || typeof context !== 'object' || typeof context.participantId !== 'string' ||
+        !Array.isArray(context.history)) {
+        throw new Error(`Invalid snapshot: conversation[${index}] is malformed`);
+      }
+      return {
+        ...context,
+        history: context.history.map((entry, entryIndex) => {
+          if (!entry || typeof entry !== 'object' || typeof entry.speaker !== 'string' ||
+            typeof entry.message !== 'string') {
+            throw new Error(`Invalid snapshot: conversation[${context.participantId}].history[${entryIndex}] is malformed`);
+          }
+          return {
+            ...entry,
+            timestamp: parseDate(entry.timestamp, `conversation[${context.participantId}].history[].timestamp`).toISOString()
+          };
+        })
+      };
+    });
+    const history = data.mood.history.map((entry, index) => {
+      if (!entry || typeof entry !== 'object' || typeof entry.mood !== 'string') {
+        throw new Error(`Invalid snapshot: mood.history[${index}] is malformed`);
+      }
+      return { ...entry, timestamp: parseDate(entry.timestamp, 'mood.history[].timestamp').toISOString() };
+    });
+    const thoughts = data.mood.thoughts.map((thought, index) => {
+      if (!thought || typeof thought !== 'object' || typeof thought.id !== 'string' ||
+        typeof thought.content !== 'string') {
+        throw new Error(`Invalid snapshot: mood.thoughts[${index}] is malformed`);
+      }
+      return { ...thought, timestamp: parseDate(thought.timestamp, 'mood.thoughts[].timestamp').toISOString() };
+    });
+
+    return {
+      ...data,
+      memories,
+      conversations,
+      mood: { ...data.mood, history, thoughts }
+    };
   }
 
   /**

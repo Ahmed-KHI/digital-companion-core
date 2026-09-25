@@ -20,7 +20,8 @@
     "demo:therapy": "ts-node examples/therapy-api.ts",
     "demo:persistence": "ts-node examples/persistence-demo.ts",
     "clean": "rimraf dist",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "node --require ts-node/register --test tests/*.test.ts"
   },
   "keywords": [
     "ai",
